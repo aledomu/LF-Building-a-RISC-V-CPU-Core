@@ -28,6 +28,8 @@
    m4_asm(BLT, x13, x12, 1111111111000) // If a3 is less than a2, branch to label named <loop>
    // Test result value in x14, and set x31 to reflect pass/fail.
    m4_asm(ADDI, x30, x14, 111111010100) // Subtract expected value of 44 to set x30 to 1 if and only iff the result is 45 (1 + 2 + ... + 9).
+   m4_asm(ADDI, x0, x0, 100)            // Try to initialize register 0 to 4. It should not write the value to x0.
+   m4_asm(ADDI, x11, x0, 10)            // Write 2 to register a1. Any other value written means that x0 is not always-zero.
    m4_asm(BGE, x0, x0, 0) // Done. Jump to itself (infinite loop). (Up to 20-bit signed immediate plus implicit 0 bit (unlike JALR) provides byte address; last immediate bit should also be 0)
    m4_asm_end()
    m4_define(['M4_MAX_CYC'], 50)
@@ -63,10 +65,11 @@
                  $instr[6:2] == 5'b10100;
    
    $opcode[6:0] = $instr[6:0];
-   $rd_valid = $is_r_instr ||
-               $is_i_instr ||
-               $is_u_instr ||
-               $is_j_instr;
+   $rd_valid = ($is_r_instr ||
+                $is_i_instr ||
+                $is_u_instr ||
+                $is_j_instr) &&
+               $rd[4:0] != 5'b00000;
    $rd[4:0] = $instr[11:7];
    $rs1_valid = $is_r_instr ||
                 $is_i_instr ||
@@ -111,8 +114,8 @@
    *passed = 1'b0;
    *failed = *cyc_cnt > M4_MAX_CYC;
    
-   m4+rf(32, 32, $reset, $wr_en, $wr_index[4:0], $wr_data[31:0], $rs1_valid, $rs1[4:0], $src1_value, $rs2_valid, $rs2[4:0], $src2_value)
-   `BOGUS_USE($rd_valid $rd $funct3_valid $imm_valid $is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu)
+   m4+rf(32, 32, $reset, $rd_valid, $rd[4:0], $result[31:0], $rs1_valid, $rs1[4:0], $src1_value, $rs2_valid, $rs2[4:0], $src2_value)
+   `BOGUS_USE($funct3_valid $imm_valid $is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu)
    //m4+dmem(32, 32, $reset, $addr[4:0], $wr_en, $wr_data[31:0], $rd_en, $rd_data)
    m4+cpu_viz()
 \SV
