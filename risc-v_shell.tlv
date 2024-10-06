@@ -18,8 +18,9 @@
    
    $pc[31:0] = >>1$next_pc[31:0];
    $next_pc[31:0] =
-      $reset    ? 0 :
-      $taken_br ? $br_tgt_pc[31:0] :
+      $reset               ? 0 :
+      $taken_br || $is_jal ? $br_tgt_pc[31:0] :
+      $is_jalr             ? $jalr_tgt_pc[31:0] :
       $pc[31:0] + 4;
    
    `READONLY_MEM($pc, $$instr[31:0])
@@ -146,7 +147,8 @@
       $is_bgeu ? $src1_value[31:0] >= $src2_value[31:0] :
       0;
 
-   $br_tgt_pc[31:0] = $pc[31:0] + $imm[31:0];
+   $br_tgt_pc[31:0]   = $pc[31:0] + $imm[31:0];
+   $jalr_tgt_pc[31:0] = $src1_value[31:0] + $imm[31:0];
 
    // Assert these to end simulation (before Makerchip cycle limit).
    m4+tb()
