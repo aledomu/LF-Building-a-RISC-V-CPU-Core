@@ -53,12 +53,7 @@
                 $is_b_instr ||
                 $is_s_instr;
    $rs2[4:0] = $instr[24:20];
-   $funct3_valid = $is_r_instr ||
-                   $is_i_instr ||
-                   $is_b_instr ||
-                   $is_s_instr;
    $funct3[2:0] = $instr[14:12];
-   $imm_valid = !$is_r_instr;
    $imm[31:0] =
       $is_i_instr ? {{21{$instr[31]}}, $instr[30:20]} :
       $is_u_instr ? {$instr[31:12], 12'b0} :
@@ -157,7 +152,6 @@
    *failed = *cyc_cnt > M4_MAX_CYC;
    
    m4+rf(32, 32, $reset, $rd_valid, $rd[4:0], $rd_data[31:0], $rs1_valid, $rs1[4:0], $src1_value, $rs2_valid, $rs2[4:0], $src2_value)
-   `BOGUS_USE($funct3_valid $imm_valid $is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu)
    m4+dmem(32, 32, $reset, $result[6:2], $is_s_instr, $src2_value[31:0], $is_load, $ld_data[31:0])
    m4+cpu_viz()
 \SV
