@@ -150,13 +150,15 @@
    $br_tgt_pc[31:0]   = $pc[31:0] + $imm[31:0];
    $jalr_tgt_pc[31:0] = $src1_value[31:0] + $imm[31:0];
 
+   $rd_data[31:0] = $is_load ? $ld_data[31:0] : $result[31:0];
+   
    // Assert these to end simulation (before Makerchip cycle limit).
    m4+tb()
    *failed = *cyc_cnt > M4_MAX_CYC;
    
-   m4+rf(32, 32, $reset, $rd_valid, $rd[4:0], $result[31:0], $rs1_valid, $rs1[4:0], $src1_value, $rs2_valid, $rs2[4:0], $src2_value)
+   m4+rf(32, 32, $reset, $rd_valid, $rd[4:0], $rd_data[31:0], $rs1_valid, $rs1[4:0], $src1_value, $rs2_valid, $rs2[4:0], $src2_value)
    `BOGUS_USE($funct3_valid $imm_valid $is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu)
-   //m4+dmem(32, 32, $reset, $addr[4:0], $wr_en, $wr_data[31:0], $rd_en, $rd_data)
+   m4+dmem(32, 32, $reset, $result[6:2], $is_s_instr, $src2_value[31:0], $is_load, $ld_data[31:0])
    m4+cpu_viz()
 \SV
    endmodule
