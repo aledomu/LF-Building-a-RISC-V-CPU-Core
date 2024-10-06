@@ -62,7 +62,36 @@
                  $instr[6:2] == 5'b01100 ||
                  $instr[6:2] == 5'b10100;
    
+   $opcode[6:0] = $instr[6:0];
+   $rd_valid = $is_r_instr ||
+               $is_i_instr ||
+               $is_u_instr ||
+               $is_j_instr;
+   $rd[4:0] = $instr[11:7];
+   $rs1_valid = $is_r_instr ||
+                $is_i_instr ||
+                $is_b_instr ||
+                $is_s_instr;
+   $rs1[4:0] = $instr[19:15];
+   $rs2_valid = $is_r_instr ||
+                $is_b_instr ||
+                $is_s_instr;
+   $rs2[4:0] = $instr[24:20];
+   $funct3_valid = $is_r_instr ||
+                   $is_i_instr ||
+                   $is_b_instr ||
+                   $is_s_instr;
+   $funct3[2:0] = $instr[14:12];
+   $imm_valid = !$is_r_instr;
+   $imm[31:0] =
+      $is_i_instr ? {{21{$instr[31]}}, $instr[30:20]} :
+      $is_u_instr ? {$instr[31:12], 12'b0} :
+      $is_j_instr ? {{12{$instr[31]}}, $instr[19:12], $instr[20], $instr[30:25], $instr[24:21], 1'b0} :
+      $is_b_instr ? {{19{$instr[31]}}, {2{$instr[7]}}, $instr[30:25], $instr[11:8], 1'b0} :
+      $is_s_instr ? {{21{$instr[31]}}, $instr[30:25], $instr[11:7]} :
+      32'b0;
    
+   `BOGUS_USE($opcode $rd_valid $rd $rs1_valid $rs1 $rs2_valid $rs2 $funct3_valid $funct3 $imm_valid $imm)
    
    // Assert these to end simulation (before Makerchip cycle limit).
    *passed = 1'b0;
