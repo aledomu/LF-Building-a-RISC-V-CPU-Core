@@ -50,6 +50,20 @@
    
    `READONLY_MEM($pc, $$instr[31:0])
    
+   $is_u_instr = $instr[6:2] ==? 5'b0x101;
+   $is_b_instr = $instr[6:2] ==  5'b11000;
+   $is_j_instr = $instr[6:2] ==  5'b11011;
+   $is_s_instr = $instr[6:2] ==? 5'b0100x;
+   $is_i_instr = $instr[6:2] == 5'b11001 ||
+                 $instr[6:2] == 5'b11100 ||
+                 ($instr[6:2] != 5'b00101 && $instr[6:2] ==? 5'b00xxx);
+   $is_r_instr = $instr[6:2] == 5'b01011 ||
+                 $instr[6:2] == 5'b01110 ||
+                 $instr[6:2] == 5'b01100 ||
+                 $instr[6:2] == 5'b10100;
+   
+   
+   
    // Assert these to end simulation (before Makerchip cycle limit).
    *passed = 1'b0;
    *failed = *cyc_cnt > M4_MAX_CYC;
